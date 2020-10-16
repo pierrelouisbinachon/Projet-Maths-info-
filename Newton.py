@@ -7,3 +7,5 @@ def Newton(F, x0, y0, eps=eps, N=N):
         x0, y0 = x, y
     else:
         raise ValueError(f"no convergence in {N} steps.")
+
+    def 
