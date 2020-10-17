@@ -11,9 +11,10 @@ def J(f):
 
 def Newton(F, x0, y0, eps=eps, N=N):
     x,y = x0, y0
+    J_F = J(F)
     for i in range(N):
-        x -= np.dot(np.linalg.inv(J(F)(x, y)), F(x, y))[0]
-        y -= np.dot(np.linalg.inv(J(F)(x, y)), F(x, y))[1]
+        x -= np.dot(np.linalg.inv(J_F(x, y)), F(x, y))[0]
+        y -= np.dot(np.linalg.inv(J_F(x, y)), F(x, y))[1]
         if np.sqrt((x - x0)**2 + (y - y0)**2) <= eps:
             return x, y
         x0, y0 = x, y
@@ -21,6 +22,6 @@ def Newton(F, x0, y0, eps=eps, N=N):
         raise ValueError(f"no convergence in {N} steps.")
 
 def exemple(x, y):
-    return(((x+y)**2, (x+y)**2))
+    return(np.array([x**2, y**3]))
 
-print(Newton(exemple, 1., 1.))
+print(Newton(exemple, 2., 1.))
