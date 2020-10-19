@@ -22,6 +22,17 @@ def Newton(F, x0, y0, eps=eps, N=N):
         raise ValueError(f"no convergence in {N} steps.")
 
 def exemple(x, y):
-    return(np.array([x**2, y**3]))
+    return(np.array([x**2 - 1, y**3-2]))
 
-print(Newton(exemple, 2., 1.))
+
+
+#tache 2:
+
+def f1(x1, x2):
+    x1 = np.array(x1)
+    x2 = np.array(x2)
+    return 3.0 * x1 * x1 - 2.0 * x1 * x2 + 3.0 * x2 * x2 
+
+def f2(x1,x2):
+    return(np.array([f1(x1,x2) - 0.8, x1 - x2]))
+
