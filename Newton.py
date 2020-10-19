@@ -13,8 +13,10 @@ def Newton(F, x0, y0, eps=eps, N=N):
     x,y = x0, y0
     J_F = J(F)
     for i in range(N):
+        print(J_F(x,y))
         x -= np.dot(np.linalg.inv(J_F(x, y)), F(x, y))[0]
         y -= np.dot(np.linalg.inv(J_F(x, y)), F(x, y))[1]
+        
         if np.sqrt((x - x0)**2 + (y - y0)**2) <= eps:
             return x, y
         x0, y0 = x, y
