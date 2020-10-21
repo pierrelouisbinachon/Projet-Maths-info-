@@ -18,9 +18,10 @@ def new_point(f,x0,y0,delta,eps=eps):
     def F(a,b):
         return(np.array([f(a,b)-c, (x0-a)**2+(y0-b)**2-delta**2]))
     x , y = x0 + direction_normalisee[0] , y0 + direction_normalisee[1]
-    return (Newton(f, x, y, eps, 100))
+    return (Newton(F, x, y, eps, 100))
 
+point = new_point(f1,0.3,0.6,10**(-1),eps)
+print(point)
+print(f1(0.3, 0.6))
 
-
-x0,y0=Newton(f1,0.,1.)
-print(new_point(f1,x0,y0,10**(-5),eps))
+print(f1(point[0], point[1]))
