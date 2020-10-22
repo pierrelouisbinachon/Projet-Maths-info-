@@ -25,3 +25,18 @@ print(point)
 print(f1(0.3, 0.6))
 
 print(f1(point[0], point[1]))
+
+def level_curve(f, x0, y0, delta=0.1, N=100, eps=eps):
+    liste_points=np.eye(N, 2)
+    liste_points[0][0]=x0
+    liste_points[0][1]=y0
+    x,y=x0,y0
+    for i in range(N-1):
+        x,y=new_point(f, x, y, delta, eps)
+        liste_points[i+1][0], liste_points[i+1][1]=x,y
+    return(liste_points)
+
+print(level_curve(f1, 5., 6.))
+
+
+
