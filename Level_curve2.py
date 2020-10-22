@@ -36,7 +36,7 @@ def level_curve(f, x0, y0, delta=0.1, N=100, eps=eps):
         liste_points[i+1][0], liste_points[i+1][1]=x,y
     return(liste_points)
 
-print(level_curve(f1, 5., 6.))
+"""print(level_curve(f1, 5., 6.))"""
 
 
 def intersec_segm(S1,S2):
@@ -55,12 +55,32 @@ def intersec_segm(S1,S2):
     scal1 = np.vdot(prod2, prod3)
     scal2 = np.vdot(prod4, prod5)
     norm = np.sqrt(np.vdot(prod1,prod1))
-    if norm !=0 and scal1<=0 and scal2<=0 :
+    if (A==C).all() or (A==D).all() or (B==C).all() or (B==D).all():
+        return(False)
+    elif norm !=0 and scal1<=0 and scal2<=0 :
         return (True)
-    return (False) 
+    else :
+        return (False) 
 
 """print(intersec_segm([[0.,-100.],[0.,100.]],[[-5.,5.],[7.,8.]]))"""
 
+def level_curve_corrig(f, x0,y0, delta=0.1, eps=eps):
+    liste_points=[[x0, y0]]
+    x , y = new_point(f, x0, y0, delta)
+    liste_points.append([x,y])
+    S1=[[x0, y0], [x, y]]
+    S2=[]
+    boucle=False
+    while not boucle :
+        x_old , y_old = x , y
+        x, y = new_point(f, x, y, delta)
+        liste_points.append([x, y])
+        S2=[[x_old, y_old], [x, y]]
+        boucle = intersec_segm(S1, S2)
+    return (np.array(liste_points))
+
+
+print(level_curve_corrig(f1, 1. , 2. ,))        
 
 
 
