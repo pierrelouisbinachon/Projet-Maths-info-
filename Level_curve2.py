@@ -20,8 +20,18 @@ def new_point(f,x0,y0,delta,eps=eps):
     x , y = x0 + direction_normalisee[0] , y0 + direction_normalisee[1]
     return (Newton(F, x, y, eps, 100))
 
+
 point = new_point(f1,0.3,0.6,10**(-1),eps)
 print(point)
 print(f1(0.3, 0.6))
 
 print(f1(point[0], point[1]))
+
+#Q8
+def gammma(t, P1, P2, u1, u2):
+    if u1[0] + u2[0] == 2*(P2[0] - P1[0]) and u1[1] + u2[1] == 2*(P2[1] - P1[1]):
+        gamma1 = P1[0]*np.ones(len(t)) + u1[0]*t + (u2[0] - u1[0])/2 *t*t
+        gamma2 = P1[1]*np.ones(len(t)) + u1[1]*t + (u2[1] - u1[1])/2 *t*t
+        gamma = np.concatenate(gamma1, gamma2)
+        gamma.reshape(2,len(t))
+        return(gamma)
