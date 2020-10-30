@@ -113,12 +113,16 @@ def gamma(t, P1, P2, u1, u2) :
             y_t = d + e*t + f*t*t
             return((x_t, y_t))
     else :
-        return(none)
+        x_t = (1-t)*x1 + t*x2
+        y_t = (1-t)*y1 + t*y2
+        return(x_t, y_t)
+
 
 T = np.linspace(0., 1., 10)
 print(gamma(T, (0.,0.), (1.,1.), (1.,4.), (2., -6.)))
-
-
+Y=gamma(T, (0.,0.), (1.,1.), (1.,4.), (2., -6.))
+pl.plot(Y)
+pl.show
 
 
 
