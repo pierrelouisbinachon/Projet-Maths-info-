@@ -1,6 +1,7 @@
 from Newton import *
 import autograd
 import autograd.numpy as np
+import matplotlib.pyplot as pl
 eps=10**(-10)
 
 def grad(f):
@@ -80,7 +81,44 @@ def level_curve_corrig(f, x0,y0, delta=0.1, eps=eps):
     return (np.array(liste_points))
 
 
-print(level_curve_corrig(f1, 1. , 2. ,))        
+"""print(level_curve_corrig(f1, 1. , 2. ,))      """  
+
+def gamma(t, P1, P2, u1, u2) :
+    
+    x1 , y1 = P1[0] , P1[1]
+    x2 , y2 = P2[0] , P2[1]
+    alpha1 , beta1 = u1[0] , u1[1]
+    alpha2 , beta2 = u2[0] , u2[1]
+    
+    M=np.array([[1, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 1, 0, 0, 0, 0], 
+    [1, 1, 1, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 1, 1, 1, 0, 0],
+    [0, 1, 0, 0, 0, 0, -alpha1, 0], 
+    [0, 0, 0, 0, 1, 0, -beta1, 0],
+    [0, 1, 2, 0, 0, 0, 0, -alpha2],
+    [0, 0, 0, 0, 1, 2, 0, -beta2]])
+    
+    det = np.linalg.det(M)
+    
+    if det != 0 :
+        
+        Y = np.array([x1, y1, x2, y2, 0, 0, 0, 0])
+        X = np.linalg.solve(M, Y)
+        a , b , c , d , e , f , lamba , mu = X[0] , X[1] , X[2] , X[3] , X[4] , X[5] , X[6] , X[7] 
+        
+        if lamba >0 and mu >0 :
+            
+            x_t = a + b*t + c*t*t
+            y_t = d + e*t + f*t*t
+            return((x_t, y_t))
+    else :
+        return(none)
+
+T = np.linspace(0., 1., 10)
+print(gamma(T, (0.,0.), (1.,1.), (1.,4.), (2., -6.)))
+
+
 
 
 
