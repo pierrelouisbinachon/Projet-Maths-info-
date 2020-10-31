@@ -37,4 +37,3 @@ def f1(x1, x2):
 
 def f2(x1,x2):
     return(np.array([f1(x1,x2) - 0.8, x1 - x2]))
-
