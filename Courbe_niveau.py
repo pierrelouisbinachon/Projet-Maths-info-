@@ -1,10 +1,9 @@
 import autograd
 import autograd.numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-N = 100
-eps = 10**(-10)
-
+N = 1000
+eps = 10**(-5)
+delta=0.05
 ###########################################################################
 
 #Quelques fonctions de R2 dans R ou R2
@@ -16,13 +15,16 @@ def exemple(x, y):
 def f1(x1, x2):
     x1 = np.array(x1)
     x2 = np.array(x2)
-    return 3.0 * x1 * x1 - 2.0 * x1 * x2 + 3.0 * x2 * x2 
+    return (3.0 * x1 * x1 - 2.0 * x1 * x2 + 3.0 * x2 * x2 )
 
 def f2(x1,x2):
     return(np.array([f1(x1,x2) - 0.8, x1 - x2]))
 
+def f3(x1, x2):
+    return (x1 - 1)**2 + (x1 - x2**2)**2
 
-
+def f4(x1, x2):
+    return(x1**2 + 2*x2 - 3*x1*x2)
 ###########################################################################
                 #Algo de base pour des fonctions de R2 dans R ou dans R2
 
@@ -45,7 +47,8 @@ def grad(f):
 def tangente(x, y, f):
     gr = grad(f)(x, y)
     result = np.array([gr[0], -gr[1]])
-    return (result)
+    norm = np.sqrt(result[0]**2 + result[1]**2) 
+    return ((1/norm)*result)
 
 
 
@@ -71,7 +74,7 @@ def Newton(F, x0, y0, eps=eps, N=N):
 
 
 #Calcul d'un  nouveau point sur la courbe de niveau de (x0, y0) à une distance delta
-def new_point(f,x0,y0,delta,eps=eps):
+def new_point(f,x0,y0,delta=delta,eps=eps):
     grx,gry=grad(f)(x0,y0)
     direction=np.array([gry, -grx])
     norme=np.sqrt(grx**2+gry**2)
@@ -79,23 +82,23 @@ def new_point(f,x0,y0,delta,eps=eps):
     c = f(x0, y0)
     def F(a,b):
         return(np.array([f(a,b)-c, (x0-a)**2+(y0-b)**2-delta**2]))
-    x , y = x0 + direction_normalisee[0]*delta , y0 + direction_normalisee[1] *delta
+    x , y = x0 + direction_normalisee[0]*delta , y0 + direction_normalisee[1]*delta
     return (Newton(F, x, y, eps, 100))
 
 #Vérifie si deux segments se coupent
 def intersec_segm(S1,S2):
     A , B = np.array(S1[0]) , np.array(S1[1])
     C , D = np.array(S2[0]) , np.array(S2[1])
-    V1 = np.array([B[0]-A[0], B[1]-A[1], 0.])
-    V2 = np.array([D[0]-C[0], D[1]-C[1], 0.])
-    V3 = np.array([D[0]-A[0], D[1]-A[1], 0.])
-    V4 = np.array([C[0]-A[0], C[1]-A[1], 0.])
-    V5 = np.array([B[0]-C[0], B[1]-A[1], 0.])
-    prod1 = np.cross(V1, V2)
-    prod2 = np.cross(V1, V3)
-    prod3 = np.cross(V1, V4)
-    prod4 = np.cross(V2, V5)
-    prod5 = np.cross(V2, -V4)
+    AB = np.array([B[0]-A[0], B[1]-A[1], 0.])
+    CD = np.array([D[0]-C[0], D[1]-C[1], 0.])
+    AD = np.array([D[0]-A[0], D[1]-A[1], 0.])
+    AC = np.array([C[0]-A[0], C[1]-A[1], 0.])
+    CB = np.array([B[0]-C[0], B[1]-A[1], 0.])
+    prod1 = np.cross(AB, CD)
+    prod2 = np.cross(AB, AD)
+    prod3 = np.cross(AB, AC)
+    prod4 = np.cross(CD, CB)
+    prod5 = np.cross(CD, -AC)
     scal1 = np.vdot(prod2, prod3)
     scal2 = np.vdot(prod4, prod5)
     norm = np.sqrt(np.vdot(prod1,prod1))
@@ -106,39 +109,6 @@ def intersec_segm(S1,S2):
     else :
         return (False) 
 
-def Intersect(S1,S2):
-    P1 = S1[0]
-    P2, P3, P4 = S1[1], S2[0], S2[1]
-    if (max(P1[0],P2[0]) < min(P3[0],P4[0])): # Pas d'intersection possible car intervalles disjoints.
-        return False
-
-    if P1[0]-P2[0] != 0 and P3[0]-P4[0] !=0 :
-        A1 = (P1[1]-P2[1])/(P1[0]-P2[0])  # y = ax+b
-        A2 = (P3[1]-P4[1])/(P3[0]-P4[0])
-        b1 = P1[1]-A1*P1[0]
-        b2 = P3[1]-A2*P3[0]
-        if A1==A2 : # Segments parrallèles
-            return(False)
-        else : 
-            Xa = (b2 - b1) / (A1 - A2) ## abscisse de l'intersection
-            if ( (Xa < max( min(P1[0],P2[0]), min(P3[0],P4[0]) )) or (Xa > min( max(P1[0],P2[0]), max(P3[0],P4[0]) )) ):
-                return False #L'abscisse de l'intersection doit être dans le domaine de définition des segments
-            else : 
-                return True
-    else : #pas utile avec approx flottant 
-        if (P1[0]-P2[0]==0 and P3[0]-P4[0]==0):
-            return False
-        else :
-            if P1[0]-P2[0]==0 : # on a x = c
-                X = P1[0]
-                Y =  (P3[1]-P4[1])/(P3[0]-P4[0])*P1[0] + P3[1]-A2*P3[0]
-            else :
-                X = P3[0]
-                Y = (P1[1]-P2[1])/(P1[0]-P2[0])*P3[0]+ P1[1]-A1*P1[0]
-            if (min(P1[0],P2[0])<= X<= max(P1[0],P2[0]) and min(P3[0],P4[0])<= X<= max(P3[0],P4[0])) and (min(P1[1],P2[1])<= Y<= max(P1[0],P2[0]) and min(P3[1],P4[1])<= Y<= max(P3[1],P4[1])):
-                return True
-            else :
-                return False
 #fonction d'interpolation pour relier deux points (avec deux vecteurs tangents au début et à la fin)
 def gamma(t, P1, P2, u1, u2) :
     
@@ -157,7 +127,7 @@ def gamma(t, P1, P2, u1, u2) :
     [0, 0, 0, 0, 1, 2, 0, -beta2]])
     
     det = np.linalg.det(M)
-    
+    print(det)
     if det != 0 :
         
         Y = np.array([x1, y1, x2, y2, 0, 0, 0, 0])
@@ -168,16 +138,15 @@ def gamma(t, P1, P2, u1, u2) :
             
             x_t = a + b*t + c*t*t
             y_t = d + e*t + f*t*t
-            return((x_t, y_t))
+            return([x_t, y_t])
         else :
             x_t = (1-t)*x1 + t*x2
             y_t = (1-t)*y1 + t*y2
-            return(x_t, y_t)
-
+            return([x_t, y_t])
     else :
         x_t = (1-t)*x1 + t*x2
         y_t = (1-t)*y1 + t*y2
-        return(x_t, y_t)
+        return([x_t, y_t])
 
 
 
@@ -188,7 +157,7 @@ def gamma(t, P1, P2, u1, u2) :
 
 
 #Courbe de niveau sans condition d'arrêt, juste s'arrête à un nombre de point défini
-def level_curve(f, x0, y0, delta=0.1, N=100, eps=eps):
+def level_curve(f, x0, y0, delta=delta, N=N, eps=eps):
     liste_points=np.eye(N, 2)
     liste_points[0][0]=x0
     liste_points[0][1]=y0
@@ -199,33 +168,28 @@ def level_curve(f, x0, y0, delta=0.1, N=100, eps=eps):
     return(liste_points)
 
 #Courbe de niveau qui s'arrête si deux segments s'intersectent ou si un point crée est trop proche d'un autre 
-def level_curve_corrig(f, x0, y0, delta=0.1, eps=eps):
+def level_curve_corrig(f, x0, y0, delta=delta, eps=eps):
     liste_points=[[x0, y0]]
     x , y = new_point(f, x0, y0, delta)
     liste_points.append([x,y])
     S1=[[x0, y0], [x, y]]
-    print(S1)
     S2=[]
-    
-    x_old , y_old = x , y
-    x, y = new_point(f, x, y, delta)
-    liste_points.append([x, y])
-    boucle = False
-    while not boucle:
-        
+    boucle=False
+    c=0
+    while not boucle :
         x_old , y_old = x , y
         x, y = new_point(f, x, y, delta)
-        
-        
+        print(x,y)
         liste_points.append([x, y])
         S2=[[x_old, y_old], [x, y]]
-        boucle = Intersect(S1, S2)
-        
+        boucle = intersec_segm(S1, S2)
+        if ((x0-x)**2 + (y0-y)**2)<(delta**2) :
+            boucle = True
+        c+=1
     return (np.array(liste_points))
 
-#print(intersec_segm([[0.1, 0.1], [0.09733088242259676, 0.19996437271027112]],[[0.10455034318514403, -0.4817716355656937], []]))
 #Courbe de niveau lissée par une interpolation
-def level_curve_complete (f, x0, y0, oversampling, delta=0.1, eps=eps):
+def level_curve_complete (f, x0, y0, oversampling, delta=delta, eps=eps):
     if oversampling == 1 :
         return level_curve_corrig(f, x0,y0, delta, eps)
     
@@ -238,25 +202,31 @@ def level_curve_complete (f, x0, y0, oversampling, delta=0.1, eps=eps):
         S1=[[x0, y0], [x, y]]
         S2=[]
         boucle=False
-        N = 0
-        while not boucle and N<100:
-            N += 1
+        c=0 
+        u1 = tangente(x0, y0, f)
+        u2 = tangente(x, y, f)
+        while not boucle :
             x_old , y_old = x , y
             x, y = new_point(f, x, y, delta)
-            
-            u1 = tangente(x_old, y_old, f)
-            u2 = tangente(x, y, f)
-            
-            X , Y = gamma(T, (x_old, y_old), (x, y), u1, u2)
-            
-            for i in range(1,len(X)):
-                liste_points.append([X[i], Y[i]])
-
             S2=[[x_old, y_old], [x, y]]
+            
+            u1 = u2
+            u2 = tangente(x, y, f)
+            Z = gamma(T, (x_old, y_old), (x, y), u1, u2)
+            for i in range(1,len(Z[0])):
+                liste_points.append([Z[0][i], Z[1][i]])
+
+
+            if ((x0-x)**2 + (y0-y)**2)<delta**2 :
+                boucle = True
             boucle = intersec_segm(S1, S2)
-        return(liste_points)
-def F(x1, x2):
-    return (x1 - 1)**2 + (x1 - x2**2)**2
+            c+=1
+        return (np.array(liste_points))
+
+###########################################################################
+
+            #Tracée de courbes et sandbox
+
 def display_contour(f, x, y, levels):
     X, Y = np.meshgrid(x, y)
     Z = f(X, Y)
@@ -270,15 +240,38 @@ def display_contour(f, x, y, levels):
     plt.xlabel("$x_1$") 
     plt.ylabel("$x_2$")
     plt.gca().set_aspect("equal")
-display_contour(
-    F, 
+
+"""display_contour(
+    f1, 
     x=np.linspace(-1.0, 1.0, 100), 
     y=np.linspace(-1.0, 1.0, 100), 
     levels=10 # 10 levels, automatically selected
-)
-Z = level_curve_corrig(F, 0.1, 0.1)
+)"""
+"""X , Y = level_curve_complete(f2, 0.8, 0.8, 10)
+plt.scatter(X, Y, color = 'green')"""
 
-X = Z[:,0]
-Y = Z[:,1]
-plt.scatter(X, Y)
+
+"""Z = level_curve_corrig(f1, 1., 1., 5, 0.5)
+print(Z)
+print(len(Z))
+plt.scatter(Z[:,0], Z[:,1])
+plt.show()"""
+"""Z = gamma(np.linspace(0,1,10), (0.,0.),(1., 1.), (1., 2.), (2.,1.))
+print(Z)"""
+P_1 = (0.,0.)
+P_2 = (5., 5.)
+u_1 = (0., 1.)
+u_2 = (1.,0.)
+Z = gamma(np.linspace(0,1,50), P_1, P_2, u_1, u_2)
+X , Y = Z[0], Z[1]
+x_1 , y_1 = P_1
+x_2 , y_2 = P_2
+plt.scatter(X,Y)
+plt.scatter(np.array([x_1]), np.array([y_1]), color = 'red')
+plt.scatter(np.array([x_2]), np.array([y_2]), color = 'red')
+
+ax = plt.axes()
+ax.arrow(P_1[0], P_1[1], u_1[0], u_1[1], head_width=0.1, head_length=0.1, fc='lightblue', ec='black')
+ax.arrow(P_2[0], P_2[1], u_2[0], u_2[1], head_width=0.1, head_length=0.1, fc='lightblue', ec='black')
+
 plt.show()
